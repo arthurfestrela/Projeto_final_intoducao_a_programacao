@@ -1,0 +1,120 @@
+{% extends "modelo.html" %}
+{% block conteudo %}
+
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dicionário de Termos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    section {
+      margin-bottom: 30px;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      margin: 5px 0 10px 0;
+      padding: 8px;
+    }
+    button {
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dicionário de Termos</h1>
+
+  <!-- Seção para visualizar todos os termos -->
+  <section>
+    <h2>Visualizar Termos</h2>
+    <button onclick="carregarTermos()">Carregar Termos</button>
+    <ul id="lista-termos"></ul>
+  </section>
+
+  <!-- Seção para adicionar um novo termo -->
+  <section>
+    <h2>Adicionar Termo</h2>
+    <input type="text" id="novo-termo" placeholder="Termo" />
+    <textarea id="nova-definicao" placeholder="Definição"></textarea>
+    <button onclick="adicionarTermo()">Adicionar</button>
+  </section>
+
+  <!-- Seção para alterar a definição de um termo existente -->
+  <section>
+    <h2>Alterar Definição</h2>
+    <input type="text" id="termo-existente" placeholder="Termo existente" />
+    <textarea id="nova-definicao-alteracao" placeholder="Nova definição"></textarea>
+    <button onclick="alterarTermo()">Alterar</button>
+  </section>
+
+  <!-- Seção para deletar um termo existente -->
+  <section>
+    <h2>Deletar Termo</h2>
+    <input type="text" id="termo-deletar" placeholder="Termo a deletar" />
+    <button onclick="deletarTermo()">Deletar</button>
+  </section>
+
+  <script>
+    // Carregar todos os termos
+    async function carregarTermos() {
+      const resposta = await fetch('/api/termos');
+      const termos = await resposta.json();
+      const lista = document.getElementById('lista-termos');
+      lista.innerHTML = '';
+      termos.forEach(t => {
+        const item = document.createElement('li');
+        item.textContent = `${t.termo}: ${t.definicao}`;
+        lista.appendChild(item);
+      });
+    }
+
+    // Adicionar novo termo
+    async function adicionarTermo() {
+      const termo = document.getElementById('novo-termo').value;
+      const definicao = document.getElementById('nova-definicao').value;
+      await fetch('/api/termos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ termo, definicao })
+      });
+      carregarTermos();
+    }
+
+    // Alterar definição de um termo existente
+    async function alterarTermo() {
+      const termo = document.getElementById('termo-existente').value;
+      const novaDefinicao = document.getElementById('nova-definicao-alteracao').value;
+      await fetch(`/api/termos/${encodeURIComponent(termo)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ definicao: novaDefinicao })
+      });
+      carregarTermos();
+    }
+
+    // Deletar termo existente
+    async function deletarTermo() {
+      const termo = document.getElementById('termo-deletar').value;
+      await fetch(`/api/termos/${encodeURIComponent(termo)}`, {
+        method: 'DELETE'
+      });
+      carregarTermos();
+    }
+  </script>
+</body>
+</html>
+
+{% endblock %}

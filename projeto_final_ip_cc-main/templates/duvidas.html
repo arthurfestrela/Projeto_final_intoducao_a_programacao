@@ -1,0 +1,16 @@
+{% extends "modelo.html" %}
+{% block conteudo %}
+
+Tire sua dúvida sobre Python</h2>
+
+<form method="post">
+  <input type="text" name="pergunta" placeholder="Digite sua pergunta" required>
+  <button type="submit">Enviar</button>
+</form>
+
+{% if resposta %}
+  <h3>Resposta:</h3>
+  <p>{{ resposta }}</p>
+{% endif %}
+
+{% endblock %}
